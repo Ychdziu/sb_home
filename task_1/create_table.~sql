@@ -1,0 +1,32 @@
+-- Create table
+create table SB_AGE_TO_TEXT
+(
+  id            NUMBER not null,
+  age_from      NUMBER not null,
+  age_to        NUMBER,
+  age_text      VARCHAR2(60) not null,
+  created_by    VARCHAR2(30) not null,
+  creation_date DATE not null,
+  updated_by    VARCHAR2(30),
+  update_date   DATE
+);
+-- Add comments to the columns 
+comment on column SB_AGE_TO_TEXT.id
+  is 'PK';
+comment on column SB_AGE_TO_TEXT.age_from
+  is 'Age number lower value';
+comment on column SB_AGE_TO_TEXT.age_to
+  is 'Age number higher value';
+comment on column SB_AGE_TO_TEXT.age_text
+  is 'Age to text, corresponding to age interval';
+comment on column SB_AGE_TO_TEXT.created_by
+  is 'Who created';
+comment on column SB_AGE_TO_TEXT.creation_date
+  is 'When created';
+comment on column SB_AGE_TO_TEXT.updated_by
+  is 'Who updated';
+comment on column SB_AGE_TO_TEXT.update_date
+  is 'When updated';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table SB_AGE_TO_TEXT
+  add constraint SB_ATT_PK primary key (ID);

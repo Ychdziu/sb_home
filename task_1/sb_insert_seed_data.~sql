@@ -1,0 +1,7 @@
+INSERT ALL
+  INTO sb_age_to_text(id, age_from, age_to, age_text, created_by, creation_date) values(1,0,7,'You are infant','SYSTEM',sysdate)
+  INTO sb_age_to_text(id, age_from, age_to, age_text, created_by, creation_date) values(2,7,18,'You are schoolchild','SYSTEM',sysdate)
+  INTO sb_age_to_text(id, age_from, age_to, age_text, created_by, creation_date) values(3,18,40,'You are adult','SYSTEM',sysdate)
+  INTO sb_age_to_text(id, age_from, age_to, age_text, created_by, creation_date) values(4,40,55,'You are in middle-age','SYSTEM',sysdate)
+  INTO sb_age_to_text(id, age_from, age_to, age_text, created_by, creation_date) values(5,55,110,'You are aged','SYSTEM',sysdate)
+SELECT * FROM dual;
