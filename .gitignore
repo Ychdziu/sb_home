@@ -1,0 +1,30 @@
+# SQL editor temp/lock files
+*.~sql
+*~
+.~*
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Java / Gradle
+.gradle/
+build/
+out/
+*.class
+
+# Node / TypeScript / Angular
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Env/secrets
+.env
+*.log
