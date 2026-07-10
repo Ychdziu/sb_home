@@ -1,5 +1,6 @@
 # SQL editor temp/lock files
 *.~sql
+*.~pck
 *~
 .~*
 
