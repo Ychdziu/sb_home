@@ -8,11 +8,14 @@ Solutions for the PL/SQL / Oracle Forms modernization / full-stack homework assi
 
 ## Repository Structure
 ```
-sb_core.pck            -- main package: age classifier (Task 1) + pi calculator (Task 2)
-sb_age_to_text.sql      -- Task 1 table DDL
-sb_insert_seed_data.sql -- Task 1 seed data
-create_table.sql        -- Task 2 table DDL (SB_PI_CALCULATIONS)
-README.md               -- this file
+sb_core.pck                  -- main package: age classifier (Task 1) + pi calculator (Task 2)
+sb_age_to_text.sql            -- Task 1 table DDL
+sb_insert_seed_data.sql       -- Task 1 seed data
+create_table.sql              -- Task 2 table DDL (SB_PI_CALCULATIONS)
+create_tables.sql             -- Task 3 table DDL (SB_INVOICES, SB_PAYMENTS)
+insert_seed_data.sql          -- Task 3 seed data
+invoices_not_fully_paid.sql   -- Task 3 query
+README.md                     -- this file
 ```
 
 ## AI Assistance Disclosure
@@ -136,3 +139,59 @@ END;
 
 ### Testing
 Tested with precision values 0, 15, 20, 35, and 38+ (to confirm clamping); confirmed intermediate rows are written and cleared correctly per run; confirmed negative precision raises an error instead of returning a misleading result.
+
+---
+
+## Task 3 — Invoices Not Fully Paid
+
+### Overview
+Returns all invoices where the total (same-currency) payments received are less than the invoice amount — covering both unpaid and partially-paid invoices — without using `EXISTS`.
+
+### Database Objects
+
+**Table: `SB_INVOICES`**
+
+| Column         | Type          | Description       |
+|----------------|---------------|--------------------|
+| INVOICE_ID     | NUMBER        | PK                 |
+| INVOICE_DATE   | DATE          | Invoice date       |
+| INVOICE_AMOUNT | NUMBER        | Invoice amount     |
+| CURRENCY       | VARCHAR2(3)   | Invoice currency   |
+
+**Table: `SB_PAYMENTS`**
+
+| Column         | Type          | Description                  |
+|----------------|---------------|--------------------------------|
+| PAYMENT_ID     | NUMBER        | PK                             |
+| PAYMENT_DATE   | DATE          | Payment date                   |
+| PAYMENT_AMOUNT | NUMBER        | Payment amount                 |
+| CURRENCY       | VARCHAR2(3)   | Payment currency                |
+| INVOICE_ID     | NUMBER        | FK to `SB_INVOICES`             |
+
+### Query (`invoices_not_fully_paid.sql`)
+```sql
+select
+  inv.invoice_id,
+  inv.invoice_date
+from
+  sb_invoices inv
+left join sb_payments pay on pay.invoice_id = inv.invoice_id and
+  pay.currency = inv.currency
+group by
+  inv.invoice_id,
+  inv.invoice_date,
+  inv.invoice_amount
+having
+  inv.invoice_amount > nvl(sum(pay.payment_amount),0)
+order by
+  inv.invoice_id
+```
+
+### Design Notes
+- **No `EXISTS`**, per the task constraint — uses `LEFT JOIN` + `GROUP BY` + `HAVING` instead, which naturally covers both zero-payment and partial-payment invoices in a single pass.
+- **`NVL(SUM(...), 0)`** handles invoices with no matching payment rows at all (the `LEFT JOIN` produces `NULL` for the aggregate in that case).
+- **Currency-safe by construction** — the join condition includes `pay.currency = inv.currency`, so a payment made in a different currency than its invoice is excluded from that invoice's paid total rather than being summed incorrectly across currencies. Cross-currency payments are treated as not contributing to that invoice being paid.
+- **`NOT IN` was deliberately avoided** as an alternative approach, since it's vulnerable to silently returning zero rows if the comparison subquery ever contains a `NULL`.
+
+### Testing
+Verified against the seed data (6 invoices, 9 payments) covering: a fully-paid invoice (excluded, boundary case where paid == amount exactly), two partially-paid invoices, a fully-paid invoice in a non-EUR currency, and an invoice with zero payments — all returned the expected included/excluded result.
