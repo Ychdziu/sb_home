@@ -15,11 +15,12 @@ create_table.sql              -- Task 2 table DDL (SB_PI_CALCULATIONS)
 create_tables.sql             -- Task 3 table DDL (SB_INVOICES, SB_PAYMENTS)
 insert_seed_data.sql          -- Task 3 seed data
 invoices_not_fully_paid.sql   -- Task 3 query
+oracle_forms_migration_strategy.md -- Task 4 migration strategy document
 README.md                     -- this file
 ```
 
 ## AI Assistance Disclosure
-AI assistance (Claude, Anthropic) was used throughout this project's development, covering: design and architecture discussions, code review, debugging, testing support, and documentation generation. All PL/SQL code, edge-case handling, and final design decisions were written and approved by the author; AI assistance was used for discussion, review, and drafting support rather than autonomous code generation.
+AI assistance (Claude, Anthropic) was used throughout this project's development, covering: design and architecture discussions, code review, debugging, testing support, and documentation generation. For Task 4, an initial abstract-level draft/outline was proposed by AI and then expanded and refined by the author into the final document. All PL/SQL code, edge-case handling, and final design decisions were written and approved by the author; AI assistance was used for discussion, review, and drafting support rather than autonomous code generation.
 
 ---
 
@@ -195,3 +196,17 @@ order by
 
 ### Testing
 Verified against the seed data (6 invoices, 9 payments) covering: a fully-paid invoice (excluded, boundary case where paid == amount exactly), two partially-paid invoices, a fully-paid invoice in a non-EUR currency, and an invoice with zero payments — all returned the expected included/excluded result.
+
+---
+
+## Task 4 — Oracle Forms Modernization Strategy
+
+### Overview
+A short (max. 2 page) strategy document describing how the existing Oracle Forms screen (customer search / details / invoices / payments — read-only) would be migrated to a modern web-based solution. Covers proposed architecture, frontend structure, backend integration approach, migration approach, what stays in Oracle DB / PL/SQL, what moves outside the database, and main risks and challenges.
+
+See [`oracle_forms_migration_strategy.pdf`](./oracle_forms_migration_strategy.pdf) for the full document.
+
+### Summary
+- **Architecture:** Vue 3 SPA → Java Spring Boot REST API → Oracle DB, with the database retaining ownership of business rules and calculations.
+- **Migration approach:** phased (inventory existing Forms trigger logic → build API → build frontend + internal UAT → cutover), with a parallel-run cutover favored specifically because the target functionality is read-only.
+- **Key risk called out:** business logic hidden in Forms triggers that isn't documented anywhere else — the most commonly underestimated part of a Forms migration.
