@@ -16,6 +16,7 @@ create_tables.sql             -- Task 3 table DDL (SB_INVOICES, SB_PAYMENTS)
 insert_seed_data.sql          -- Task 3 seed data
 invoices_not_fully_paid.sql   -- Task 3 query
 oracle_forms_migration_strategy.md -- Task 4 migration strategy document
+task_5/sb_app/                -- Task 5 full-stack application (see its own README.md)
 README.md                     -- this file
 ```
 
@@ -204,9 +205,24 @@ Verified against the seed data (6 invoices, 9 payments) covering: a fully-paid i
 ### Overview
 A short (max. 2 page) strategy document describing how the existing Oracle Forms screen (customer search / details / invoices / payments — read-only) would be migrated to a modern web-based solution. Covers proposed architecture, frontend structure, backend integration approach, migration approach, what stays in Oracle DB / PL/SQL, what moves outside the database, and main risks and challenges.
 
-See [`oracle_forms_migration_strategy.pdf`](./oracle_forms_migration_strategy.pdf) for the full document.
+See [`oracle_forms_migration_strategy.md`](./oracle_forms_migration_strategy.md) for the full document.
 
 ### Summary
 - **Architecture:** Vue 3 SPA → Java Spring Boot REST API → Oracle DB, with the database retaining ownership of business rules and calculations.
 - **Migration approach:** phased (inventory existing Forms trigger logic → build API → build frontend + internal UAT → cutover), with a parallel-run cutover favored specifically because the target functionality is read-only.
 - **Key risk called out:** business logic hidden in Forms triggers that isn't documented anywhere else — the most commonly underestimated part of a Forms migration.
+
+---
+
+## Task 5 — Full-Stack Application
+
+### Overview
+A Vue 3 + TypeScript frontend and a Java Spring Boot backend, visualizing the results of Tasks 1-3 against the Oracle Autonomous Database. Java + TypeScript, Gradle build, unit tests, and OOP/SOLID design (interface-based services and repositories) as required; Vue.js chosen as the frontend framework (bonus point).
+
+See [`task_5/sb_app/README.md`](./task_5/sb_app/README.md) for full setup instructions, architecture details, API reference, and design decisions.
+
+### Summary
+- **Architecture:** Vue 3 SPA → Spring Boot REST API → Oracle DB (`SB_CORE` package), each domain following Controller → Service → Repository → PL/SQL.
+- **Endpoints:** `/api/age-text`, `/api/pi`, `/api/invoices/unpaid`.
+- **Notable technical decision:** the pi value is carried as `BigDecimal` end-to-end and serialized as a JSON string rather than a number, since a plain JSON number would be parsed back down to a JavaScript `double` on the frontend — silently discarding the precision Task 2 was built to preserve.
+- **Testing:** JUnit 5 + Mockito unit tests per backend service, run without a live DB connection. Selenium UI tests (bonus item) cover all three views (Age, Pi, Invoices).

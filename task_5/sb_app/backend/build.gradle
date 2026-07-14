@@ -1,0 +1,58 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.1.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.sbhome'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+sourceSets {
+    uiTest {
+        java.srcDir 'src/uiTest/java'
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    uiTestImplementation.extendsFrom testImplementation
+    uiTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'com.oracle.database.jdbc:ojdbc11:23.5.0.24.07'
+	implementation 'com.oracle.database.security:oraclepki:23.5.0.24.07'
+    implementation 'com.oracle.database.security:osdt_core:21.10.0.0'
+    implementation 'com.oracle.database.security:osdt_cert:21.10.0.0'
+	uiTestImplementation 'org.seleniumhq.selenium:selenium-java:4.23.0'
+    uiTestImplementation 'io.github.bonigarcia:webdrivermanager:5.9.2'
+    uiTestImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.register('uiTest', Test) {
+    description = 'Runs Selenium UI tests. Requires backend (8080) and frontend (5173) running.'
+    group = 'verification'
+    testClassesDirs = sourceSets.uiTest.output.classesDirs
+    classpath = sourceSets.uiTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

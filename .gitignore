@@ -29,3 +29,5 @@ Thumbs.db
 # Env/secrets
 .env
 *.log
+
+*.bak
